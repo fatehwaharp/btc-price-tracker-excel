@@ -209,7 +209,8 @@ export default function Home({
             Last updated at: {lastRowUpdatedAt}
           </p>
           <p className="text-xs text-gray-300 italic">
-            Last fetched at: {lastFetchedAt}
+            Last fetched at:{" "}
+            {format(new Date(lastFetchedAt), "dd MMM yyyy HH:mm:ss")}
           </p>
         </div>
       </div>
@@ -250,12 +251,15 @@ export async function getStaticProps(): Promise<
   return {
     props: {
       fiveMinutes: btcLog,
-      oneHour: btcLog.filter((_, index) => (index + 1) % 12 === 0),
+      oneHour: [
+        btcLog[0],
+        ...btcLog.filter((_, index) => (index + 1) % 12 === 0),
+      ],
       oneDay: [
         btcLog[0],
         ...btcLog.filter((_, index) => (index + 1) % 288 === 0),
       ],
-      lastFetchedAt: format(new Date(), "dd MMM yyyy HH:mm:ss"),
+      lastFetchedAt: new Date().toString(),
     },
     revalidate: 300,
   };
