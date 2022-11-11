@@ -27,6 +27,7 @@ interface HomeProps {
   fiveMinutes: BtcDataLog[];
   oneHour: BtcDataLog[];
   oneDay: BtcDataLog[];
+  lastFetchedAt: string;
 }
 
 interface BtcPriceLog {
@@ -39,6 +40,7 @@ export default function Home({
   fiveMinutes,
   oneHour,
   oneDay,
+  lastFetchedAt,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   ChartJS.register(
     CategoryScale,
@@ -94,7 +96,7 @@ export default function Home({
     };
   });
 
-  const lastFetchedAt = format(
+  const lastRowUpdatedAt = format(
     new Date(fiveMinutes[fiveMinutes.length - 1].date),
     "dd MMM yyyy HH:mm:ss"
   );
@@ -204,6 +206,9 @@ export default function Home({
             </StyledButton>
           </div>
           <p className="text-sm text-gray-400 italic mt-2">
+            Last updated at: {lastRowUpdatedAt}
+          </p>
+          <p className="text-xs text-gray-300 italic">
             Last fetched at: {lastFetchedAt}
           </p>
         </div>
@@ -244,9 +249,13 @@ export async function getStaticProps(): Promise<
 
   return {
     props: {
-      fiveMinutes: btcLog.filter((_, index) => index % 1 === 0),
-      oneHour: btcLog.filter((_, index) => index % 12 === 0),
-      oneDay: btcLog.filter((_, index) => index % 288 === 0),
+      fiveMinutes: btcLog,
+      oneHour: btcLog.filter((_, index) => (index + 1) % 12 === 0),
+      oneDay: [
+        btcLog[0],
+        ...btcLog.filter((_, index) => (index + 1) % 288 === 0),
+      ],
+      lastFetchedAt: format(new Date(), "dd MMM yyyy HH:mm:ss"),
     },
     revalidate: 300,
   };
@@ -291,28 +300,4 @@ const getFromRowNumber = (latestRowNumber: number, daysBefore: number = 4) => {
   const fourDaysRowNumber = 288 * daysBefore;
 
   return latestRowNumber - (fourDaysRowNumber + todayRowsNumber);
-};
-
-export const data = {
-  datasets: [
-    {
-      label: "Bitcoin price",
-      data: [
-        {
-          x: "2021-11-06 23:39:30",
-          y: 50,
-        },
-        {
-          x: "2021-11-07 01:00:28",
-          y: 60,
-        },
-        {
-          x: "2021-11-07 09:00:28",
-          y: 20,
-        },
-      ],
-      borderColor: "rgb(255, 99, 132)",
-      backgroundColor: "rgba(255, 99, 132, 0.5)",
-    },
-  ],
 };
