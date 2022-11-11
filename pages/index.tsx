@@ -14,7 +14,7 @@ import {
 } from "chart.js";
 import "chartjs-adapter-date-fns";
 import { Line } from "react-chartjs-2";
-import { format, getTime } from "date-fns";
+import { format } from "date-fns";
 import StyledButton from "../components/StyledButton";
 
 interface BtcDataLog {
@@ -93,6 +93,11 @@ export default function Home({
       y: data.dominance,
     };
   });
+
+  const lastFetchedAt = format(
+    new Date(fiveMinutes[fiveMinutes.length - 1].date),
+    "dd MMM yyyy HH:mm:ss"
+  );
 
   const options: ChartOptions = {
     responsive: true,
@@ -198,6 +203,9 @@ export default function Home({
               24h
             </StyledButton>
           </div>
+          <p className="text-sm text-gray-400 italic mt-2">
+            Last fetched at: {lastFetchedAt}
+          </p>
         </div>
       </div>
     </div>
